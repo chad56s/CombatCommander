@@ -8,9 +8,9 @@ namespace CombatCommander {
 	public enum POSTURE { ATTACK, DEFEND, RECON }
 
     /*
-     * This is a class used by game to represent its players. 
+     * This is a class used by Game to represent its players. 
      * 
-     * It is NOT a class that is used by the actual players of the game (see Commander)
+     * It is NOT a class that is used by the actual players of the game (see Player)
      */
 	public class Commander {
 

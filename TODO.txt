@@ -1,0 +1,39 @@
+The state of this project seems to be as follows:
+
+The Player class represents an actual decision maker (human or AI)
+The Game class represents the physical state of the Game, the position of the pieces, the objectives drawn, the time track, the
+players' draw and discard decks, etc.
+The GameManager class (and PlayerAgent class) represents the interface between the game and the player. Anything the player
+wishes to do must go through this interface.
+
+Currently, the separation of duties between GameManager and Game is unclear. Where I'd like to get it is as described above. Additionally,
+the GameManager should be the one checking the legality of requests from the players, keeping track of scenario details (who sets up first,
+etc.), who's turn it is, whether the game has ended, and all of those fun things.
+
+The Commander class...unclear on what this should represent. Perhaps it just contains the decks for each commander or something? The hands?
+
+Next Step: Try to get it to a state where a new GameManager can be set up, and the game can "run" by having the players take "turns" where all they do is discard, thereby eventually triggering time.
+
+Then: Try to clean up the game manager and game classes so the separation is clear.
+
+Then: Try to implement some set up stuff so that the game can actually have pieces on the board.
+
+Then: Try to harness in the original path finding stuff such that, when an AI has a Move order, it can be executed. Otherwise, discard.
+
+Then: Implement some rudimentary Fire ordering.
+ -Add surrender game over conditions?
+
+Then: Implement Advance/Rout/Recover
+
+Then: Implement Artillery Request/Denied
+
+Then: Implement Actions (Not Op. Fire)
+
+Then: Implement Op Fire
+
+Then: Implement Sniper/Time/Jammed triggers
+
+Then: Implement Events
+
+Then: Do the AIs
+

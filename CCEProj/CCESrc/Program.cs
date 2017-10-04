@@ -11,7 +11,8 @@ namespace CombatCommander {
 	class Program {
 
 		static void Main(string[] args) {
-
+            GameManager myGameMgr = new GameManager("1", new ComputerPlayer(FACTION.AXIS), new ComputerPlayer(FACTION.ALLIES));
+            myGameMgr.PlayGame();
 		}
 	}
 }

@@ -245,7 +245,7 @@ namespace CombatCommander {
         }
 
 		public static Scenario LoadFromXML(XDocument xdocScenario) {
-			//TODO: stop passing in the map. Read the number from the xml and load it in here
+			//TODO: Use XMLSerializer to read/write scenarios
 			int number, year, time_start, sudden_death, mapNum;
             XElement xmlScenario = xdocScenario.Root;
 			string name = "";
@@ -330,20 +330,20 @@ namespace CombatCommander {
 		public int TimeStart {
 			get { return _time_start; }
 			set {
-				if (value >= 0)
+				if (value >= 0 && value <= 12)
 					_time_start = value;
 				else
-					throw new ArgumentOutOfRangeException(String.Format("Time cannot start below 0 ({})", value));
+					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Time Start ({})", value));
 			}
 		}
 
 		public int SuddenDeath {
 			get { return _sudden_death; }
 			set {
-				if (value >= 0)
+				if (value >= 0 && value <= 12)
 					_sudden_death = value;
 				else
-					throw new ArgumentOutOfRangeException(String.Format("Sudden Death cannot start below 0 ({})", value));
+					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Sudden Death ({})", value));
 			}
 		}
 

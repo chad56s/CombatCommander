@@ -4,6 +4,16 @@ using System.Linq;
 using System.Text;
 
 namespace CombatCommander {
+
+    /*
+     * CLASS: Player
+     * 
+     * This class represents the entity making the decisions for a particular FACTION and Nationality in a given game. This
+     * might be a human or an AI. It communicates intentions through the PlayerAgent and is delivered instructions from that
+     * same PlayerAgent as well.
+     * 
+     */
+
 	public abstract class Player {
 		
         private PlayerAgent _agent;

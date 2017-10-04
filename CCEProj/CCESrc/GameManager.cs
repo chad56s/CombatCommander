@@ -35,16 +35,21 @@ namespace CombatCommander {
 
 		}
 
-        private Player AxisPlayer
-        {
+        public void PlayGame() {
+
+            PlayerSetUp(game.SetsUpFirst().Faction);
+            while (!game.GameOver) {
+                
+            }
+        }
+
+        private Player AxisPlayer {
             get { return _axis_player; }
         }
 
-        private Player AlliesPlayer
-        {
+        private Player AlliesPlayer {
             get { return _allies_player; }
         }
-
 
         public PlayerAgent AxisAgent {
             get { return _axis_agent; }
