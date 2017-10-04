@@ -1,0 +1,48 @@
+<scenario id="1" name="Fat Lipki" map="1" year="1941">
+	<time start="2" sudden_death="7"/>
+	<side_setup side="allies">
+		<nationality>RUSSIAN</nationality>
+		<map_edge>north</map_edge>
+		<orders>3</orders>
+		<quality>LINE</quality>
+		<posture>RECON</posture>
+		<vps>0</vps>
+		<surrender_level>7</surrender_level>
+		<objectives>
+			<objective>?</objective>
+		</objectives>
+		<units>
+			<leader>Sgt. Kovalev</leader>
+			<leader>Cpl. Krylov</leader>
+			<squad num="8">Rifle</squad>
+			<weapon num="2">Medium MG</weapon>
+			<weapon>Light MG</weapon>
+		</units>
+	</side_setup>
+	<side_setup side="axis">
+		<nationality>GERMAN</nationality>
+		<map_edge>south</map_edge>
+		<orders>2</orders>
+		<quality>LINE</quality>
+		<posture>RECON</posture>
+		<surrender_level>5</surrender_level>
+		<objectives>
+			<objective>?</objective>
+		</objectives>
+		<units>
+			<leader>Lt. v.Karsties</leader>
+			<leader>Cpl. Winkler</leader>
+			<squad num="4">Rifle</squad>
+			<weapon>Light MG</weapon>
+		</units>
+	</side_setup>
+	<initiative_card>AXIS</initiative_card>
+	<setup_first/>
+	<first_player>ALLIES</first_player>
+	<objectives>
+		<objective>?</objective>
+	</objectives>
+	<control>
+		<!-- Example: <objective num="1">AXIS</objective> -->
+	</control>
+</scenario>
