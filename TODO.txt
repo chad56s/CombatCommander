@@ -12,9 +12,16 @@ etc.), who's turn it is, whether the game has ended, and all of those fun things
 
 The Commander class...unclear on what this should represent. Perhaps it just contains the decks for each commander or something? The hands?
 
-Next Step: Try to get it to a state where a new GameManager can be set up, and the game can "run" by having the players take "turns" where all they do is discard, thereby eventually triggering time.
+First: Organize the classes in a more consistent manner. Three main parts:
+{Currently reorganizing Gameboard, in the middle of doing constructor still}
+1. Player - the decision maker. Interacts with GameManager, never with Gameboard
+2. Gameboard - the physical locations, representations, states of all the game pieces. Doesn't interact with anything, but
+	just does what it's told with the pieces or gives information on the state of things when asked. NONE of its components
+	should be responsible for knowing rules or enforcing them (except maybe determining LOS between hexes)
+3. GameManager - sits between the Player and Gameboard. Has subcomponents for all or many of the game components
+	that enforce rules, or give information on the states of the pieces by asking Gameboard.
 
-Then: Try to clean up the game manager and game classes so the separation is clear.
+Next Step: Try to get it to a state where a new GameManager can be set up, and the game can "run" by having the players take "turns" where all they do is discard, thereby eventually triggering time.
 
 Then: Try to implement some set up stuff so that the game can actually have pieces on the board.
 

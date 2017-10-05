@@ -4,76 +4,94 @@ using System.Linq;
 using System.Text;
 
 namespace CombatCommander {
-	public class TimeTrack {
 
-		private int _time_start;
-		private int _time_current;
-		private int _sudden_death;
+    public partial class Gameboard {
 
-		private Dictionary<int, Dictionary<Nationality,Stack>> reinforcements;
+        private class TimeTrack
+        {
 
-		public TimeTrack(int start, int sudden_death) {
-			Start = start;
-			_time_current = Start;
-			SuddenDeath = sudden_death;
+            private int _time_start;
+            private int _time_current;
+            private int _sudden_death;
 
-			reinforcements = new Dictionary<int, Dictionary<Nationality, Stack>>();
-		}
+            private Dictionary<int, Dictionary<Nationality, Stack>> reinforcements;
 
-		public int Start {
-			set {
-				if(value >= 0)
-					_time_start = value;
-				else
-					throw new ArgumentOutOfRangeException("Time marker cannot start below 0");
-			}
-			get { return _time_start; }
-		}
+            public TimeTrack(int start, int sudden_death) {
+                Start = start;
+                Time = Start;
+                SuddenDeath = sudden_death;
 
-		public int Time {
-			get { return _time_current; }
-		}
+                reinforcements = new Dictionary<int, Dictionary<Nationality, Stack>>();
+            }
 
-		public int SuddenDeath {
-			set {
-				if (value >= 0 && value >= Start)
-					_sudden_death = value;
-				else if (value < Start)
-					throw new ArgumentOutOfRangeException("Sudden Death cannot be less than start time");
-				else
-					throw new ArgumentOutOfRangeException("Sudden Death cannot be below 0");
-			}
-			get { return _sudden_death; }
-		}
+            private bool inBounds(int time) {
+                //TODO: check upper bounds
+                return time >= 0;
+            }
+
+            public int Start {
+                set {
+                    if (inBounds(value))
+                        _time_start = value;
+                    else
+                        throw new ArgumentOutOfRangeException(String.Format("Time marker cannot start out of bounds ({0})",value));
+                }
+                get { return _time_start; }
+            }
+
+            public int Time {
+                set {
+                    if (inBounds(value))
+                        _time_current = value;
+                    else
+                        throw new ArgumentOutOfRangeException(String.Format("Time marker cannot be placed out of bounds ({0})",value));
+                }
+                get { return _time_current; }
+            }
+
+            public int SuddenDeath {
+                set {
+                    if (inBounds(value))
+                        _sudden_death = value;
+                    else
+                        throw new ArgumentOutOfRangeException(String.Format("Sudden Death cannot be out of bounds ({0})", value));
+                }
+                get { return _sudden_death; }
+            }
+
+            public int Advance() {
+                return ++Time;
+            }
+
+            public void AddReinforcements(int time_space, Unit u) {
+                if (time_space >= 0) {
+                    if (!reinforcements.ContainsKey(time_space))
+                        reinforcements.Add(time_space, new Dictionary<Nationality, Stack>());
+
+                    if (!reinforcements[time_space].ContainsKey(u.Nation))
+                        reinforcements[time_space].Add(u.Nation, new Stack());
+
+                    reinforcements[time_space][u.Nation].Add(u);
+
+                }
+                else
+                    throw new ArgumentOutOfRangeException("Reinforcements cannot be placed below 0");
+            }
 
 
-		public void AddReinforcements(int time_space, Unit u) {
-			if (time_space >= 0) {
-				if (!reinforcements.ContainsKey(time_space))
-					reinforcements.Add(time_space, new Dictionary<Nationality, Stack>());
+            public bool InSuddenDeath() {
+                return Time >= SuddenDeath;
+            }
 
-				if (!reinforcements[time_space].ContainsKey(u.Nation))
-					reinforcements[time_space].Add(u.Nation, new Stack());
+            public Dictionary<Nationality, Stack> TakeReinforcements(int time_space) {
+                Dictionary<Nationality, Stack> r;
+                reinforcements.TryGetValue(time_space, out r);
+                if (r != null)
+                    reinforcements.Remove(time_space);
+                return r;
+            }
 
-				reinforcements[time_space][u.Nation].Add(u);
+        }
 
-			}
-			else
-				throw new ArgumentOutOfRangeException("Reinforcements cannot be placed below 0");
-		}
-
-
-		public bool InSuddenDeath() {
-			return Time >= SuddenDeath;
-		}
-
-		public Dictionary<Nationality, Stack> TakeReinforcements(int time_space) {
-			Dictionary<Nationality, Stack> r;
-			reinforcements.TryGetValue(time_space, out r);
-			if (r != null)
-				reinforcements.Remove(time_space);
-			return r;
-		}
-
-	}
+    }
 }

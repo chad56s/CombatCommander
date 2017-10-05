@@ -322,7 +322,7 @@ namespace CombatCommander {
 				if (value > 1940 && value < 1946)
 					_year = value;
 				else
-					throw new ArgumentOutOfRangeException(String.Format("Invalid Year for Scenario ({})", value));
+					throw new ArgumentOutOfRangeException(String.Format("Invalid Year for Scenario ({0})", value));
 			}
 			get { return _year; }
 		}
@@ -333,7 +333,7 @@ namespace CombatCommander {
 				if (value >= 0 && value <= 12)
 					_time_start = value;
 				else
-					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Time Start ({})", value));
+					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Time Start ({0})", value));
 			}
 		}
 
@@ -343,7 +343,7 @@ namespace CombatCommander {
 				if (value >= 0 && value <= 12)
 					_sudden_death = value;
 				else
-					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Sudden Death ({})", value));
+					throw new ArgumentOutOfRangeException(String.Format("Invalid value for Sudden Death ({0})", value));
 			}
 		}
 
@@ -366,6 +366,12 @@ namespace CombatCommander {
 			get { return _setup_first; }
 			set { _setup_first = value; }
 		}
+
+        public FACTION SetupSecond {
+            get {
+                return SetupFirst == FACTION.AXIS ? FACTION.ALLIES : FACTION.AXIS;
+            }
+        }
 
 		public FACTION FirstPlayer {
 			get { return _first_player; }

@@ -9,15 +9,21 @@ namespace CombatCommander {
 	 * 
 	 * CLASS: GameManager
 	 * 
-	 * Acts as a layer between the player and the game implementation
-	 * Responsible for conveying intentions of the player to the game (delivered via PlayerAgent) which will check legality and then execute
-	 * Responsible for conveying queries/clarifications to the player by the game engine when appropriate
-	 * 
+     * Responsible for setup and maintenance of the Gameboard. Responsible for checking legality of and executing
+     * Players' wishes. Responsible for checking game state and querying Players at appropriate times. Responsible
+     * for honoring parameters of the Scenario.
+     * 
 	 */
 
 	public class GameManager {
 
-		private Game game;
+        private Gameboard _gameboard;
+
+        /*
+         * Scenario information
+         * 
+         */
+        private Scenario _scenario;
 
 		private Player _axis_player, _allies_player;
         private PlayerAgent _axis_agent, _allies_agent;
@@ -28,7 +34,9 @@ namespace CombatCommander {
             _allies_player = allies;
             _allies_agent = new PlayerAgent(this, _allies_player, FACTION.ALLIES);
 
-            game = new Game(scenario, this);
+            _scenario = Scenario.LoadByString(scenario);
+
+            _gameboard = new Gameboard();
 
             _axis_player.Agent = _axis_agent;
             _allies_player.Agent = _allies_agent;
@@ -37,8 +45,10 @@ namespace CombatCommander {
 
         public void PlayGame() {
 
-            PlayerSetUp(game.SetsUpFirst().Faction);
-            while (!game.GameOver) {
+            PlayerSetUp(_gameboard.SetsUpFirst().Faction);
+            PlayerSetUp(_gameboard.SetsUpSecond().Faction);
+            while (!_gameboard.GameOver)
+            {
                 
             }
         }
@@ -95,10 +105,10 @@ namespace CombatCommander {
 		 * Methods which ask the game for information about its state
 		 */
         public Nationality GetNationalityByFaction(FACTION f) {
-            return game.GetNationalityByFaction(f);
+            return _gameboard.GetNationalityByFaction(f);
         }
         public List<ObjectiveChit_PW> GetObjectivesByFaction(FACTION f) {
-            return game.GetObjectivesByFaction(f);
+            return _gameboard.GetObjectivesByFaction(f);
         }
 
 	}

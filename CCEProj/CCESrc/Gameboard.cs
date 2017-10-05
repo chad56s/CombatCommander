@@ -7,18 +7,26 @@ using CW_Utils;
 
 namespace CombatCommander {
 
-	public class Game {
-
-        /*
-         * Broker
-         */
-        private GameManager _gm;
-
+    /*
+     * CLASS: Gameboard
+     * 
+     * Represents the physical components including the map, counters, tracks and player decks(?), objective cup, etc.
+     * This includes the components' locations on the map, values on the tracks, counter states (broken/etc.)
+     * 
+     * Should only be able to be controlled by the GameManager (only it can move pieces around, draw objectives, draw cards, etc.)
+     * 
+     * This class has no knowledge of rules or any kind of responsibility in enforcing them. It is ONLY to represent physical states
+     * of components (no matter how illegal they may be).
+     * 
+     * EXCEPTION: This class will be able to tell whether two hexes have LOS to one another
+     */
+	public partial class Gameboard {
+        
 		/*
 		 * Players
 		 * (representation of a player and what its pieces are, etc)
 		 */
-		private Commander _commander1, _commander2, _commander_axis, _commander_allies;
+		private Commander CommanderA, CommanderB;
 		private Commander _hasInitiative;
 
 		/*
@@ -28,11 +36,6 @@ namespace CombatCommander {
 		private List<ObjectiveChit> _objectivesDrawCup;
         private TimeTrack _time_track;
 
-		/*
-		 * Scenario information
-		 * 
-		 */
-		private Scenario _scenario;
 		private Map _gameMap;
 
 		/*
@@ -43,36 +46,28 @@ namespace CombatCommander {
 		private int _vp_marker;
 		private bool _game_over;
 
-		public Game(string scenario, GameManager gm) {
+		public Gameboard(Map m, FACTION factionA, FACTION factionB) {
 
-            _gm = gm;
-
-			_commander_axis = new Commander(FACTION.AXIS, this);
-			_commander_allies = new Commander(FACTION.ALLIES, this);
+            if(factionA == factionB)
+                throw new ArgumentException(String.Format("Can't set up a game with two of the same FACTION {0}", factionA));
 
 			_objectivesDrawCup = new List<ObjectiveChit>();
 			_openObjectives = new List<ObjectiveChit>();
 
-			_scenario = Scenario.LoadByString(scenario);
-			_gameMap = _scenario.ScenarioMap;
-			_time_track = new TimeTrack(_scenario.TimeStart, _scenario.SuddenDeath);
-			_game_over = false;
-			
-			if (_scenario.FirstPlayer == FACTION.AXIS) {
-				_commander1 = _commander_axis;
-				_commander2 = _commander_allies;
-			}
-			else {
-				_commander1 = _commander_allies;
-				_commander2 = _commander_axis;
-			}
+			_gameMap = m;
 
-			if (_scenario.Initiative == _commander1.Faction)
-				_hasInitiative = _commander1;
-			else
-				_hasInitiative = _commander2;
+            CommanderA = new Commander(factionA);
+            CommanderB = new Commander(factionB);
 
 		}
+
+        public void SetTimeMarkers(int time, int suddenDeath) {
+            if (_time_track == null)
+                _time_track = new TimeTrack(time, suddenDeath);
+            else
+                _time_track.Time(time);
+
+        }
 
         /*
          * 
@@ -92,10 +87,10 @@ namespace CombatCommander {
 		}
 
         public Nationality GetNationalityByFaction(FACTION f) {
-            return GetCommanderByFaction(f).Nation;
+            return GetCommander(f).Nation;
         }
         public List<ObjectiveChit_PW> GetObjectivesByFaction(FACTION f) {
-            return GetCommanderByFaction(f).WrapObjectives();
+            return GetCommander(f).WrapObjectives();
         }
 
         /************************************************
@@ -156,30 +151,46 @@ namespace CombatCommander {
 			return chit;
 		}
 
-		public Commander GetCommanderByFaction(FACTION f) {
-			return f == FACTION.ALLIES ? _commander_allies : (f == FACTION.AXIS ? _commander_axis : null);
+		private Commander GetCommander(FACTION f) {
+            Commander c;
+			c = (f == CommanderA.Faction) ? CommanderA : (f == CommanderB.Faction ? CommanderB : null);
+            if (c == null)
+                throw new ArgumentOutOfRangeException(String.Format("No such Commander for Faction: {0}", f));
+            return c;
 		}
 
-		public void GiveInitiative(Commander p) {
-			_hasInitiative = p;
-		}
+        private Commander GetOtherCommander(FACTION f) {
+            Commander c;
+            c = (f == CommanderA.Faction) ? CommanderB : (f == CommanderB.Faction ? CommanderA : null);
+            if (c == null)
+                throw new ArgumentOutOfRangeException(String.Format("No such Commander for Faction: {0}", f));
+            return c;
+        }
 
-		public bool HasInitiative(Commander p) {
-			return p == _hasInitiative;
-		}
 
-		//player p is passing the initiative to other player
-		public void PassInitiative(Commander p) {
-			if (HasInitiative(p)) {
-				if (HasInitiative(_commander_axis))
-					_hasInitiative = _commander_allies;
-				else
-					_hasInitiative = _commander_axis;
-			}
+        public void GiveInitiative(FACTION f) {
+            GiveInitiativeToCommander(GetCommander(f));
+        }
+        public bool HasInitiative(FACTION f) {
+            return GetCommander(f).HasInitiative;
+        }
+        public void GiveInitiativeToCommander(Commander c) {
+            c.HasInitiative = true;
+            GetOtherCommander(c.Faction).HasInitiative = false;
+        }
+
+		//FACTION f is passing the initiative to other FACTION
+		public bool PassInitiative(FACTION f) {
+            if (HasInitiative(f)) {
+                GiveInitiativeToCommander(GetOtherCommander(f));
+                return true;
+            }
+            else
+                return false;
 		}
 
 		public Commander SetsUpFirst() {
-			return GetCommanderByFaction(_scenario.SetupFirst);
+			return GetCommander(_scenario.SetupFirst);
 		}
 
 
@@ -189,18 +200,18 @@ namespace CombatCommander {
 
 			do {
 
-				_commander1.TakeTurn();
+				CommanderA.TakeTurn();
 				if (!GameOver)
-					_commander2.TakeTurn();
+					CommanderB.TakeTurn();
 
 			} while (!GameOver);
 
 		}
 
 		public int VPGive(Commander p, int pts) {
-			if (p == _commander1)
+			if (p == CommanderA)
 				VPMarker -= pts;
-			else if (p == _commander2)
+			else if (p == CommanderB)
                 VPMarker += pts;
 			else
 				throw new ArgumentException("Who is this player that is getting points?");
@@ -208,9 +219,9 @@ namespace CombatCommander {
 		}
 		
 		public int VPTake(Commander p, int pts) {
-			if (p == _commander1)
+			if (p == CommanderA)
                 VPMarker += pts;
-			else if (p == _commander2)
+			else if (p == CommanderB)
                 VPMarker -= pts;
 			else
 				throw new ArgumentException("Who is this player that is losing points?");

@@ -30,7 +30,7 @@ namespace CombatCommander
         /*
          * MOVEMENT RULES
          */
-        public static bool CanMoveIntoHex(Game g, Map m, FACTION f) {
+        public static bool CanMoveIntoHex(Gameboard g, Map m, FACTION f) {
             bool canMove = true;
 
             return canMove;
