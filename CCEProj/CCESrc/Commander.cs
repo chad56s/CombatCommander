@@ -125,7 +125,7 @@ namespace CombatCommander {
 				}
 
 				foreach (var o in setupInfo.Objectives) {
-					myObjectives.Add(DrawObjective(o));
+                    DrawObjective(o);
 				}
 			}
 			else
