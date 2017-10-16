@@ -27,13 +27,17 @@ namespace CombatCommander {
          * 
          * It is NOT a class that is used by the actual players of the game (see Player)
          */
-        private class Commander
+        public class Commander
         {
 
+            /* TODO: do these really need to be private? The only thing accessing them is the Gameboard which is not supposed to be protected much
+             * (the GameManager is the only one with access to the board and it makes all decisions on legality, etc.)
+             */
             private FACTION faction;
 
-            private List<ObjectiveChit> mySecretObjectives;
+            private CounterMix counterMix;
 
+            public List<ObjectiveChit> secretObjectives;
             private Scenario.SideSetup setupInfo;
 
             private Stack mapPieces;
@@ -51,7 +55,7 @@ namespace CombatCommander {
 
             public Commander(FACTION f)
             {
-                mySecretObjectives = new List<ObjectiveChit>();
+                secretObjectives = new List<ObjectiveChit>();
                 mapPieces = new Stack();
                 setupPieces = new Stack();
                 eliminatedPieces = new Stack();
@@ -100,6 +104,7 @@ namespace CombatCommander {
 
             public Scenario.SideSetup SetupInfo
             {
+                set { setupInfo = value; }
                 get { return setupInfo; }
             }
 
@@ -108,11 +113,7 @@ namespace CombatCommander {
                 set { _hasInitiative = value; }
             }
 
-            /*
-             * 
-             * MOVE INTO Player and or GameManager
-             * 
-             * public void Prepare(Scenario.SideSetup si)
+            public void Prepare(Scenario.SideSetup si)
             {
 
                 setupInfo = si;
@@ -121,23 +122,15 @@ namespace CombatCommander {
                 {
 
                     drawPile = Nation.CreateNewDeck();
-
-                    //generate the forces
-                    Type nationType = Nation.GetType();
+                    counterMix = Nation.CreateNewCounterMix();
 
                     foreach (var piece in setupInfo.Pieces)
                     {
-
-                        Type v = Type.GetType(nationType.FullName + "+" + piece.Name);
-
                         //TODO: Each nationality should have a counter mix from which to pull these pieces
                         //in order to enforce limits
                         try
                         {
-                            for (var n = 0; n < piece.Number; n++)
-                            {
-                                setupPieces.Add((Piece)Activator.CreateInstance(v));
-                            }
+                            setupPieces.Add(counterMix.Pull(piece.Name, piece.Number));
                         }
                         catch (Exception e)
                         {
@@ -145,27 +138,17 @@ namespace CombatCommander {
                         }
                     }
 
+                    /*
                     foreach (var o in setupInfo.Objectives)
                     {
                         DrawObjective(o);
-                    }
+                    }*/
                 }
                 else
                     throw new ArgumentException(String.Format("Setup information for {0} contains setup information for {1}", Faction.ToString(), setupInfo.Faction.ToString()));
 
             }
-            **/
-
-            public void SetUp()
-            {
-
-            }
-
-            public void SetUpFortifications()
-            {
-
-            }
-
+      
             public void DrawHand()
             {
                 while (cardsInHand.Count < HandSize)
@@ -189,11 +172,6 @@ namespace CombatCommander {
 
             }
 
-            public void TakeTurn()
-            {
-
-            }
-
 
             /*********
              * 
@@ -204,7 +182,7 @@ namespace CombatCommander {
             {
                 List<ObjectiveChit_PW> wrapped = new List<ObjectiveChit_PW>();
 
-                foreach (var o in mySecretObjectives)
+                foreach (var o in secretObjectives)
                 {
                     wrapped.Add(new ObjectiveChit_PW(faction, o));
                 }

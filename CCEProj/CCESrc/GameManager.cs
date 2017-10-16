@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace CombatCommander {
 
@@ -41,6 +43,7 @@ namespace CombatCommander {
             _axis_player.Agent = _axis_agent;
             _allies_player.Agent = _allies_agent;
 
+            SetupScenario();
 		}
 
         public void PlayGame() {
@@ -50,6 +53,46 @@ namespace CombatCommander {
             while (!_gameboard.GameOver)
             {
                 
+            }
+        }
+
+        private void SetupScenario() {
+            
+            //load the map
+            //TODO: configuration on where to find the map?
+            XDocument xmlMap = null;
+            Map m;
+            xmlMap = XDocument.Load(String.Format(@"CCE\map{0}.xml", _scenario.ScenarioMap));
+            m = new Map();
+            m.Load(xmlMap);
+
+            //fill the objective cup
+            _gameboard.PopulateObjectivesCup();
+
+            //set up the markers
+            _gameboard.Year = _scenario.Year;
+            _gameboard.VPGive(FACTION.AXIS, _scenario.AxisSetup.StartVP);
+            _gameboard.VPGive(FACTION.ALLIES, _scenario.AlliesSetup.StartVP);
+            _gameboard.SetTimeMarkers(_scenario.TimeStart, _scenario.SuddenDeath);
+
+            //Prepare commanders' decks, setup pieces, counter mixes, decks, posture, troop quality, etc.
+            _gameboard.GetCommander(FACTION.AXIS).Prepare(_scenario.AxisSetup);
+            _gameboard.GetCommander(FACTION.ALLIES).Prepare(_scenario.AlliesSetup);
+
+            //give initiative to commander as dictated by scenario
+            _gameboard.GiveInitiative(_scenario.Initiative);
+            
+            //draw the open objectives
+            //TODO: remove objectives specified by the scenario
+            foreach (var o in _scenario.OpenObjectives) {
+                _gameboard.DrawOpenObjective(o);
+            }
+            //draw the secret objectives
+            foreach (var o in _scenario.AxisSetup.Objectives) {
+                _gameboard.DrawSecretObjective(FACTION.AXIS, o);
+            }
+            foreach (var o in _scenario.AlliesSetup.Objectives) {
+                _gameboard.DrawSecretObjective(FACTION.ALLIES, o);
             }
         }
 

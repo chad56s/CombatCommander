@@ -43,13 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CounterMix.cs" />
+    <Compile Include="Deck.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CasualtyTrack.cs" />
     <Compile Include="CC_Utils.cs" />
     <Compile Include="GameRules.cs" />
     <Compile Include="CW_Utils.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="Gameboard.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Nationality.cs" />
     <Compile Include="Objective.cs" />

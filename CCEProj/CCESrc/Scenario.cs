@@ -11,7 +11,7 @@ using System.IO;
 
 namespace CombatCommander {
 
-	public enum MAP_ORIENTATION_AXIS { NORTH, EAST, SOUTH, WEST }
+	public enum MAP_EDGE { NORTH, EAST, SOUTH, WEST }
 
     /*
      * Scenario: represents the set-up and special instructions for a game.
@@ -80,7 +80,7 @@ namespace CombatCommander {
 			Nationality _nationality;
 			FACTION _faction;
 
-			MAP_ORIENTATION_AXIS _map_edge;
+			MAP_EDGE _friendly_map_edge;
 			TROOP_QUALITY _quality;
 			POSTURE _posture;
 			List<char> _objectives;
@@ -89,10 +89,10 @@ namespace CombatCommander {
 			int _vps;
 			List<PieceSpecs> _pieces;
 
-			public SideSetup(Nationality n, MAP_ORIENTATION_AXIS map_edge, TROOP_QUALITY q, int num_orders, POSTURE p, List<char> obj, int surrender_level, int vps, List<PieceSpecs> pieces) {
+			public SideSetup(Nationality n, MAP_EDGE map_edge, TROOP_QUALITY q, int num_orders, POSTURE p, List<char> obj, int surrender_level, int vps, List<PieceSpecs> pieces) {
 				_nationality = n;
 				_faction = _nationality.Faction;
-				_map_edge = map_edge;
+				_friendly_map_edge = map_edge;
 				_quality = q;
 				_num_orders = num_orders;
 				_posture = p;
@@ -108,7 +108,7 @@ namespace CombatCommander {
 				Nationality n;
 				string n_string;
 				FACTION f;
-				MAP_ORIENTATION_AXIS m_o;
+				MAP_EDGE m_o;
 				TROOP_QUALITY q;
 				POSTURE p;
 				List<char> o = new List<char>();
@@ -131,7 +131,7 @@ namespace CombatCommander {
 				if (f != n.Faction)
 					throw new ArgumentException(String.Format("Invalid faction for nationality {0} in scenario setup", n_string));
 
-				m_o = (MAP_ORIENTATION_AXIS)Enum.Parse(typeof(MAP_ORIENTATION_AXIS), xmlSetup.Element("map_edge").Value.ToUpper());
+				m_o = (MAP_EDGE)Enum.Parse(typeof(MAP_EDGE), xmlSetup.Element("map_edge").Value.ToUpper());
 				q = (TROOP_QUALITY)Enum.Parse(typeof(TROOP_QUALITY), xmlSetup.Element("quality").Value.ToUpper());
 				p = (POSTURE)Enum.Parse(typeof(POSTURE), xmlSetup.Element("posture").Value.ToUpper());
 				IEnumerable<XElement> objectives =
@@ -170,8 +170,8 @@ namespace CombatCommander {
 			public FACTION Faction {
 				get { return _faction; }
 			}
-			public MAP_ORIENTATION_AXIS MapEdge {
-				get { return _map_edge; }
+			public MAP_EDGE MapEdge {
+				get { return _friendly_map_edge; }
 			}
 
 			public TROOP_QUALITY Quality {
@@ -200,7 +200,7 @@ namespace CombatCommander {
 
 		int _number;
 		string _name;
-		Map _map;
+		string _map;
 		int _year;
 		int _time_start;
 		int _sudden_death;
@@ -212,7 +212,7 @@ namespace CombatCommander {
 		
 		public Scenario(int number,
 						string name,
-						Map m, 
+						string map, 
 						int year,
 						int time_start,
 						int sudden_death,
@@ -226,7 +226,7 @@ namespace CombatCommander {
 
 			_number = number;
 			_name = name;
-			ScenarioMap = m;
+			ScenarioMap = map;
 			Year = year;
 			TimeStart = time_start;
 			SuddenDeath = sudden_death;
@@ -246,17 +246,16 @@ namespace CombatCommander {
 
 		public static Scenario LoadFromXML(XDocument xdocScenario) {
 			//TODO: Use XMLSerializer to read/write scenarios
-			int number, year, time_start, sudden_death, mapNum;
+			int number, year, time_start, sudden_death;
+            string map;
             XElement xmlScenario = xdocScenario.Root;
 			string name = "";
-			Map map = null;
 			List<char> open_objectives = new List<char>();
 			List<ObjectiveControl> obj_ctl = new List<ObjectiveControl>();
 			SideSetup axis_setup, allies_setup;
 			FACTION initiative, setup_first, first_player;
 
             string curDirectory = Directory.GetCurrentDirectory();
-            XDocument xmlMap = null;
 
 			XElement xmlTime = xmlScenario.Element("time");
 			XElement xmlInitiative = xmlScenario.Element("initiative_card");
@@ -267,13 +266,9 @@ namespace CombatCommander {
 			
 			int.TryParse(xmlScenario.Attribute("id").Value, out number);
 			name = xmlScenario.Attribute("name").Value;
-            
-            int.TryParse(xmlScenario.Attribute("map").Value, out mapNum);
-            xmlMap = XDocument.Load(String.Format(@"CCE\map{0}.xml", mapNum));
-			map = new Map();
-			map.Load(xmlMap);
+            map = xmlScenario.Attribute("map").Value;
 
-			int.TryParse(xmlScenario.Attribute("year").Value, out year);
+            int.TryParse(xmlScenario.Attribute("year").Value, out year);
 			int.TryParse(xmlTime.Attribute("start").Value, out time_start);
 			int.TryParse(xmlTime.Attribute("sudden_death").Value, out sudden_death);
 
@@ -312,7 +307,7 @@ namespace CombatCommander {
 			return new Scenario(number, name, map, year, time_start, sudden_death, open_objectives, objCtrl, initiative, setup_first, first_player, axis_setup, allies_setup);
 		}
 
-		public Map ScenarioMap {
+		public string ScenarioMap {
 			get { return _map; }
 			set { _map = value; }
 		}

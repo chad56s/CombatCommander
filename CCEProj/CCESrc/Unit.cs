@@ -10,6 +10,7 @@ namespace CombatCommander {
 	public abstract class Piece {
 
 		protected Nationality _nationality;
+        protected string _name;
 
 		protected int _firepower;
 		protected int _range;
@@ -35,6 +36,9 @@ namespace CombatCommander {
 		public Nationality Nation {
 			get { return _nationality; }
 		}
+        public string Name {
+            get { return name; }
+        }
 		public virtual int Firepower {
 			get { return PrintedFirepower + LeaderBonus(); }
 		}
@@ -85,6 +89,10 @@ namespace CombatCommander {
 			return false;
 		}
 
+        public virtual bool IsHero() {
+            return false;
+        }
+
 		public virtual bool IsSuppressed() {
 			return _suppressed;
 		}
@@ -132,8 +140,9 @@ namespace CombatCommander {
 
 		private Weapon _weapon;
 
-		public Unit(Nationality nationality, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) {
+		public Unit(Nationality nationality, string name, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) {
 			_nationality = nationality;
+            _name = name;
 
 			_morale = a;
 			_firepower = b;
@@ -194,11 +203,11 @@ namespace CombatCommander {
 
 	public abstract class Leader : Unit {
 
-		private int _leadership;
-		private int _leadership_broken;
+		protected int _leadership;
+		protected int _leadership_broken;
 
-		public Leader(Nationality n, int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, bool u, bool v, bool w, bool x, bool y, bool z) :
-			base(n, a, b, c, d, f, g, h, i, u, v, w, x, y, z) {
+		public Leader(Nationality n, string name, int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, bool u, bool v, bool w, bool x, bool y, bool z) :
+			base(n, name, a, b, c, d, f, g, h, i, u, v, w, x, y, z) {
 				_leadership = e;
 				_leadership_broken = j;
 		}
@@ -218,14 +227,23 @@ namespace CombatCommander {
 
 	}
 
+    public abstract class Hero : Leader {
+        public Hero(Nationality n, string name, int a, int b, int c, int d, int e, int f, int g, int h, int i, int j, bool u, bool v, bool w, bool x, bool y, bool z) :
+            base(n, name, a, b, c, d, e, f, g, h, i, j, u, v, w, x, y, z) { }
+        
+        public override bool IsHero() {
+            return true;
+        }
+    }
+
 	public abstract class Squad : Unit {
-		public Squad(Nationality n, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) :
-			base(n, a, b, c, d, f, g, h, i, u, v, w, x, y, z) { }
+		public Squad(Nationality n, string name, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) :
+			base(n, name, a, b, c, d, f, g, h, i, u, v, w, x, y, z) { }
 	}
 
 	public abstract class Team : Unit {
-		public Team(Nationality n, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) :
-			base(n, a, b, c, d, f, g, h, i, u, v, w, x, y, z) { }
+		public Team(Nationality n, string name, int a, int b, int c, int d, int f, int g, int h, int i, bool u, bool v, bool w, bool x, bool y, bool z) :
+			base(n, name, a, b, c, d, f, g, h, i, u, v, w, x, y, z) { }
 	}
 
 	
@@ -235,6 +253,7 @@ namespace CombatCommander {
 
 		public Stack() { pieces = new HashSet<Piece>();}
 		public bool Add(Piece u) { return pieces.Add(u); }
+        public void Add(IEnumerable<Piece> s) { pieces.UnionWith(s); }
 		public bool Remove(Piece u) { return pieces.Remove(u); }
 		public IEnumerator<Piece> GetEnumerator() { return pieces.GetEnumerator(); }
 		IEnumerator IEnumerable.GetEnumerator() {
