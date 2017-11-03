@@ -51,6 +51,7 @@
     <Compile Include="CasualtyTrack.cs" />
     <Compile Include="CC_Utils.cs" />
     <Compile Include="GameManagerQueries.cs" />
+    <Compile Include="GameManagerRules.cs" />
     <Compile Include="GameRules.cs" />
     <Compile Include="CW_Utils.cs" />
     <Compile Include="Gameboard.cs" />
