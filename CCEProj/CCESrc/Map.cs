@@ -60,10 +60,8 @@ namespace CombatCommander {
 
 		private Hex[,] hexes; //col,row
 
-
-		//TODO: move these objectives outside of the Map object.  I think?
-		private List<Objective> Objectives;
-		public Objective GetObjective(int o) { return Objectives[o-1]; }
+		private List<ObjectiveHexes> Objectives;
+		public ObjectiveHexes GetObjective(int o) { return Objectives[o-1]; }
 
 		public static HexOrderer hexOrder = new HexOrderer();
 
@@ -200,9 +198,9 @@ namespace CombatCommander {
 					hexes[c, r] = new Hex(this, c, r);
 				}
 			}
-			Objectives = new List<Objective>(5);
+			Objectives = new List<ObjectiveHexes>(5);
 			for (c = 0; c < Objectives.Capacity; c++)
-				Objectives.Add(new Objective(c + 1));
+				Objectives.Add(new ObjectiveHexes(c + 1));
 		}
 
 		public static int Distance(Hex h1, Hex h2) {
@@ -503,7 +501,7 @@ namespace CombatCommander {
 			private FEATURES[] sideFeatures;
 
 			private int elevation;
-			private Objective objective;
+			private ObjectiveHexes objective;
 
 			private Stack stack;
 
@@ -563,7 +561,7 @@ namespace CombatCommander {
 				get { return elevation; }
 			}
 
-			public Objective HexObjective {
+			public ObjectiveHexes HexObjective {
 				get { return objective; }
 				set { objective = value; }
 			}
@@ -637,26 +635,6 @@ namespace CombatCommander {
 			/*
 			 * OTHER FUNCTIONS
 			 */
-
-			public int GetObjectivesValue(FACTION f) {
-				int pv = 0;
-				if (objective != null)
-					pv = objective.GetKnownValue(f);
-				return pv;
-			}
-
-
-			public int GetPointSwing(FACTION f, bool bySimplyOccupying = false) {
-				int pv = 0;
-				if (objective != null) {
-					if (!bySimplyOccupying)
-						pv = objective.GetPointSwing(f, null);
-					else
-						pv = objective.GetPointSwing(f, this);
-				}
-				return pv;
-			}
-
 			public bool IsAccessible() {
 				bool a = true;
 				try {
@@ -677,26 +655,6 @@ namespace CombatCommander {
 				return r;
 			}
 
-			public bool MoveFrom(Unit u) {
-				Hex oldLocation = u.location;
-				oldLocation.UpdateObjective();
-				u.location = null;
-				return stack.Remove(u);
-			}
-
-			public bool MoveInto(Unit u) {
-				bool success = false;
-				
-				if(u.location != null)
-					u.location.MoveFrom(u);
-				
-                u.location = this;
-				success = stack.Add(u);
-				u.location.UpdateObjective();
-				return success;
-				
-			}
-
             public Stack GetOccupants() {
                 //TODO: return something that can't be manipulated. A clone or copy.
                 return stack;
@@ -714,11 +672,6 @@ namespace CombatCommander {
                 }
                 return isOccupied;
             }
-
-			public void UpdateObjective() {
-				if (objective != null)
-					objective.DetermineOwner();
-			}
 
 		}
 
@@ -818,26 +771,20 @@ namespace CombatCommander {
 		 * 
 		 */
 
-		//This class describes only the location and controller of each of the 5 labeled objectives on the map
-		//It does NOT describe the point value directly, but does reference all of the objectives drawn and thereby
-		//can compute the known objectives by nationality
-		public class Objective {
+		//This class describes only the location of each of the 5 labeled objectives on the map
+		//It does NOT describe the owner or the point value. That stuff is left to the gameManager and/or the gameboard classes
+		public class ObjectiveHexes {
 
 			private int _number;
 			private HashSet<Hex> hexes;
-
-			private List<ObjectiveChit> gameObjectives;
-			FACTION _owner;
-
-			public Objective(int num) : this(num, Enumerable.Empty<Hex>()){
+            
+			public ObjectiveHexes(int num) : this(num, Enumerable.Empty<Hex>()){
 			}
 
-			public Objective(int num, IEnumerable<Hex> collection) {
+			public ObjectiveHexes(int num, IEnumerable<Hex> collection) {
 				_number = num;
 				foreach (Hex h in collection)
 					AddHex(h);
-				gameObjectives = new List<ObjectiveChit>();
-				_owner = FACTION.NONE;
 			}
 
 			public int Number {
@@ -845,14 +792,9 @@ namespace CombatCommander {
 				set { _number = value; }
 			}
 
-			public FACTION Owner {
-				get { return DetermineOwner(); }
-				set { _owner = value; }
-			}
-
-			public void AddGameObjective(ObjectiveChit o) {			
-				gameObjectives.Add(o);
-			}
+            public HashSet<Hex> Hexes {
+                get { return hexes; }
+            }
 
 			public void AddHex(Hex h) {
 				if(hexes == null)
@@ -860,55 +802,6 @@ namespace CombatCommander {
 				hexes.Add(h);
 			}
 
-			public FACTION DetermineOwner() {
-				FACTION f = _owner;
-
-				if (OwnerStillOccupies() == 0) {
-					foreach (Hex h in hexes) {
-						if(h.IsOccupiedByFaction(GameRules.GetOpposingFaction(_owner))) {
-							f = GameRules.GetOpposingFaction(_owner);
-						}
-					}
-					Owner = f;
-				}
-
-				return f;
-			}
-
-			public int OwnerStillOccupies() {
-				int occupies = 0;
-				foreach (Hex h in hexes) {
-					if (h.IsOccupiedByFaction(_owner) && _owner != FACTION.NONE)
-						occupies++;
-				}
-				return occupies;
-			}
-
-			public int GetKnownValue(FACTION f) {
-				int v = 0;
-				foreach (var o in gameObjectives) {
-					v += o.GetKnownValue(f);
-				}
-				return v;
-			}
-
-			//if h == null, we're asking for the possible point swing if we were to fully occupy the objective
-			public int GetPointSwing(FACTION f, Hex h) {
-				int v = 0;
-				if (Owner != f) {
-					v = GetKnownValue(f);
-					if (Owner != FACTION.NONE) {
-						//if the owner is gone, or the hex we'd occupy is the sole hex he's in (or we simply don't care) the 
-						//point swing is twice the known value
-						if (h == null || OwnerStillOccupies() == 0 || (OwnerStillOccupies() == 1 && h.IsOccupiedByFaction(Owner)))
-							v = v * 2;
-						//occupying this hex won't result in a point swing because the owner is still there
-						else 
-							v = 0;
-					}
-				}
-				return v;
-			}
 		}
 
 		/*

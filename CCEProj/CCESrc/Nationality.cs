@@ -323,10 +323,10 @@ namespace CombatCommander {
          * Russian Weapons
          */
 		public class LightMG : CombatCommander.Weapon {
-			public LightMG() : base(Russian.Instance, 3, 6, 0, 1, 2, 7, 10, true, true) { }
+			public LightMG() : base(Russian.Instance, "Light MG", 3, 6, 0, 1, 2, 7, 10, true, true) { }
 		}
 		public class MediumMG : CombatCommander.Weapon {
-			public MediumMG() : base(Russian.Instance, 6, 10, -2, 1, 4, 7, 10, false, true) { }
+			public MediumMG() : base(Russian.Instance, "Medium MG", 6, 10, -2, 1, 4, 7, 10, false, true) { }
 		}
 
 

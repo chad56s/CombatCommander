@@ -12,8 +12,11 @@ etc.), who's turn it is, whether the game has ended, and all of those fun things
 
 The Commander class...unclear on what this should represent. Perhaps it just contains the decks for each commander or something? The hands?
 
+CURRENT WORK: GameManagerQueries.cs: decide whether the functions there are useful or need to be revisited. Get them compiling at least.
+Then move on to having the GameManager finish setting up the scenario by assigning initial control to the objectives and figuring out if
+the VPs need adjusting based on any open objectives that may have been drawn.
+
 First: Organize the classes in a more consistent manner. Three main parts:
-{Currently reorganizing Gameboard, in the middle of doing constructor still}
 1. Player - the decision maker. Interacts with GameManager, never with Gameboard
 2. Gameboard - the physical locations, representations, states of all the game pieces. Doesn't interact with anything, but
 	just does what it's told with the pieces or gives information on the state of things when asked. NONE of its components

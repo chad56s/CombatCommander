@@ -37,7 +37,7 @@ namespace CombatCommander {
 			get { return _nationality; }
 		}
         public string Name {
-            get { return name; }
+            get { return _name; }
         }
 		public virtual int Firepower {
 			get { return PrintedFirepower + LeaderBonus(); }

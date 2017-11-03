@@ -39,6 +39,7 @@ namespace CombatCommander {
         private TimeTrack _time_track;
 
 		private Map _gameMap;
+        private Dictionary<Map.ObjectiveHexes, FACTION> _objControl;
 
 		/*
 		 * Other game information
@@ -57,7 +58,6 @@ namespace CombatCommander {
             CommanderB = new Commander(FACTION.ALLIES);
 
 		}
-
 
         public void SetTimeMarkers(int time, int suddenDeath) {
             if (_time_track == null)
@@ -82,13 +82,25 @@ namespace CombatCommander {
             get { return _year; }
             set { _year = value; }
 		}
+
 		public int VPMarker {
 			get { return _vp_marker; }
             private set { _vp_marker = value; }
 		}
 
-        public List<ObjectiveChit_PW> GetObjectivesByFaction(FACTION f) {
+        public List<ObjectiveChit_PW> GetSecretObjectivesByFaction(FACTION f) {
             return GetCommander(f).WrapObjectives();
+        }
+
+        //this function only returns the state of the owner "chit". It does not try to figure out who
+        //the owner should be - that's the job of the GameManager
+        public FACTION GetObjectiveOwner(int objNum) {
+            Map.ObjectiveHexes mapObj = _gameMap.GetObjective(objNum);
+            return(_objControl.ContainsKey(mapObj) ? _objControl[mapObj] : FACTION.NONE);
+        }
+
+        public void SetObjectiveOwner(int objNum, FACTION owner) {
+            _objControl[_gameMap.GetObjective(objNum)] = owner;
         }
 
         /************************************************
@@ -239,26 +251,6 @@ namespace CombatCommander {
             GetCommander(FACTION.ALLIES).secretObjectives = new List<ObjectiveChit>();
 		}
 
-
-		private void PlayersSetUp() {
-
-			Commander c1 = SetsUpFirst();
-            Commander c2 = (c1 == _commander_axis) ? _commander_allies : _commander_axis;
-			if (c1 == null) {
-                c1 = _commander_axis;
-                c2 = _commander_allies;
-			}
-
-            c1.SetUp();
-            c2.SetUp();
-            c1.SetUpFortifications();
-            c2.SetUpFortifications();
-            c1.DrawHand();
-            c2.DrawHand();
-
-
-		}
-
 		/*
 		 * 
 		 * Game-based Exceptions
@@ -272,24 +264,4 @@ namespace CombatCommander {
 		}
 	}
 
-    public static class Rules {
-
-        public static int DefaultHandSize(POSTURE p) {
-            int hs = 0;
-            switch (p) {
-                case POSTURE.ATTACK:
-                    hs = 6;
-                    break;
-                case POSTURE.DEFEND:
-                    hs = 4;
-                    break;
-                case POSTURE.RECON:
-                    hs = 5;
-                    break;
-            }
-            return hs;
-        }
-
-
-    }
 }

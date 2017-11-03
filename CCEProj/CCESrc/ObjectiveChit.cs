@@ -68,13 +68,7 @@ namespace CombatCommander {
 		}
 
 		public abstract bool AppliesToObjectiveNumber(int n);
-
-		public abstract void Award(FACTION f);
-
-		public abstract int GetKnownValue(FACTION f);
-
-		public abstract int GetPointSwing(FACTION f);
-
+        
 	}
 
 	public class MapObjectiveChit : ObjectiveChit {
@@ -84,24 +78,7 @@ namespace CombatCommander {
 		public override bool AppliesToObjectiveNumber(int n) {
 			return (ToHexRepresentation(n) & Numbers) != 0;
 		}
-
-		public override void Award(FACTION f) {
-			
-		}
-
-		public override int GetKnownValue(FACTION f) {
-			int v = 0;
-			if (!IsSecret || DrawnBy == f)
-				v = Value;
-			return v;
-		}
-
-		public override int GetPointSwing(FACTION f) {
-			int v = 0;
-			if (!IsSecret || DrawnBy == f)
-				v = Value*2;
-			return v;
-		}
+      
 	}
 
 	public class ExitObjectiveChit : ObjectiveChit {
@@ -111,16 +88,6 @@ namespace CombatCommander {
 		public override bool AppliesToObjectiveNumber(int n) {
 			return false;
 		}
-		public override void Award(FACTION f) {
-
-		}
-		public override int GetKnownValue(FACTION f) {
-			return 4;
-		}
-        public override int GetPointSwing(FACTION f)
-        {
-			return 4;
-		}
 	}
 
 	public class EliminationObjectiveChit : ObjectiveChit {
@@ -129,18 +96,6 @@ namespace CombatCommander {
 		public override bool AppliesToObjectiveNumber(int n) {
 			return false;
 		}
-        public override void Award(FACTION f)
-        {
-
-		}
-        public override int GetKnownValue(FACTION f)
-        {
-			return 4;
-		}
-        public override int GetPointSwing(FACTION f)
-        {
-			return 4;
-		}
 	}
 
 	public class SuddenDeathObjectiveChit : ObjectiveChit {
@@ -148,19 +103,6 @@ namespace CombatCommander {
 
 		public override bool AppliesToObjectiveNumber(int n) {
 			return (ToHexRepresentation(n) & Numbers) != 0;
-		}
-        public override void Award(FACTION f)
-        {
-
-		}
-		//TODO: figure out something better for this?  Maybe a formula based on end of game closeness, etc?
-        public override int GetKnownValue(FACTION f)
-        {
-			return 0;
-		}
-        public override int GetPointSwing(FACTION f)
-        {
-			return 0;
 		}
 	}
 }

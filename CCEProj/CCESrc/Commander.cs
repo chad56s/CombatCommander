@@ -78,7 +78,7 @@ namespace CombatCommander {
 
             public int HandSize
             {
-                get { return _hand_size > 0 ? _hand_size : Rules.DefaultHandSize(Posture); }
+                get { return _hand_size; }
                 set { _hand_size = value; }
             }
 
@@ -113,11 +113,11 @@ namespace CombatCommander {
                 set { _hasInitiative = value; }
             }
 
-            public void Prepare(Scenario.SideSetup si)
+            public void Prepare(Scenario.SideSetup si, int handSize)
             {
 
                 setupInfo = si;
-
+                HandSize = handSize;
                 if (setupInfo.Faction == Faction)
                 {
 
@@ -134,7 +134,7 @@ namespace CombatCommander {
                         }
                         catch (Exception e)
                         {
-                            throw new ArgumentException(String.Format("Can't create piece of type {0}+{1}", nationType.FullName, piece.Name));
+                            throw new ArgumentException(String.Format("Can't create piece of type {0}+{1}", Nation.ToString(), piece.Name));
                         }
                     }
 

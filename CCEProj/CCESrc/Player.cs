@@ -40,7 +40,7 @@ namespace CombatCommander {
 			set { _agent = value; }
 		}
 
-        public void Prepare() {
+        public virtual void Prepare() {
             Nationality = Agent.GetMyNationality();
             myObjectives = Agent.GetMyObjectives();
         }
@@ -57,12 +57,11 @@ namespace CombatCommander {
 			: base(f) {
 		}
 
-        public void Prepare() {
+        public override void Prepare() {
             base.Prepare();
         }
 
 		public override void SetUp() {
-			int i = 0;
 		}
 
 		public override void SetUpFortifications() {

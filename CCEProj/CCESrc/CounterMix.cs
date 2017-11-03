@@ -118,6 +118,17 @@ namespace CombatCommander {
             AddNew("Green", 8);
         }
     }
-   
 
+    public sealed class GermanCounterMix : CounterMix {
+        public GermanCounterMix(Nationality n) 
+            : base(n) {
+
+        }
+    }
+    public sealed class RussianCounterMix : CounterMix {
+        public RussianCounterMix(Nationality n)
+            : base(n) {
+
+        }
+    }
 }

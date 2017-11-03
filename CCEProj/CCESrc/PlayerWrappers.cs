@@ -33,10 +33,6 @@ namespace CombatCommander {
 
         public bool AppliesToObjectiveNumber(int n) { return _oc.AppliesToObjectiveNumber(n); }
 
-        public int GetKnownValue() { return _oc.GetKnownValue(_f); }
-
-        public int GetPointSwing() { return _oc.GetPointSwing(_f); }
-
     }
 
     public class ScenarioInfo_PW {
