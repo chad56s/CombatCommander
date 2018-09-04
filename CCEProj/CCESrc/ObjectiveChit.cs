@@ -11,7 +11,7 @@ namespace CombatCommander {
 		public static int OBJECTIVE_2 = 0X02;
 		public static int OBJECTIVE_3 = 0x04;
 		public static int OBJECTIVE_4 = 0x08;
-		public static int OBJECTIVE_5 = 0x0A;
+		public static int OBJECTIVE_5 = 0x10;
 
 		protected char _letter;
 		protected int _numbers;		//which map objectives does this chit apply to?  Bit-wise (54321)
